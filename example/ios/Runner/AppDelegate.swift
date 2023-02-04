@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import vp_custom
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -9,5 +10,13 @@ import Flutter
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  override func applicationDidEnterBackground(_ application: UIApplication) {
+     SwiftVpCustomPlugin.shared.CloseOpenConnection()
+  }
+
+  override func applicationWillTerminate(_ application: UIApplication) {
+     SwiftVpCustomPlugin.shared.terminatePlugin()
   }
 }

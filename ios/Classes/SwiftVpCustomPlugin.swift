@@ -1,5 +1,7 @@
 import Flutter
 import UIKit
+import Foundation
+import AVKit
 
 public class SwiftVpCustomPlugin: NSObject, FlutterPlugin {
      public static var shared : SwiftVpCustomPlugin!
@@ -18,7 +20,7 @@ public class SwiftVpCustomPlugin: NSObject, FlutterPlugin {
      var currentPlayPosition: CMTime!
      var lastPlayPosition: Double!
      public static func register(with registrar: FlutterPluginRegistrar) {
-         let channel = FlutterMethodChannel(name: "udlib", binaryMessenger: registrar.messenger())
+         let channel = FlutterMethodChannel(name: "vp_custom", binaryMessenger: registrar.messenger())
 
          let instance = SwiftVpCustomPlugin()
          registrar.addMethodCallDelegate(instance, channel: channel)
@@ -253,7 +255,7 @@ public class SwiftVpCustomPlugin: NSObject, FlutterPlugin {
          }
      }
 
-     public func applicationWillTerminate() {
+     public func terminatePlugin() {
          if(self.avPlayer != nil){
              self.avPlayer.pause()
          }
@@ -261,7 +263,7 @@ public class SwiftVpCustomPlugin: NSObject, FlutterPlugin {
      }
 
 
-     public func applicationDidEnterBackground() {
+     public func CloseOpenConnection() {
          var isAudioSessionUsingAirplayOutputRoute: Bool {
 
              let audioSession = AVAudioSession.sharedInstance()
