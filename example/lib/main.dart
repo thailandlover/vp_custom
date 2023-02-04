@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -22,29 +25,35 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initPlatformState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
+  _play() async {
+    dynamic result;
     try {
-      platformVersion =
-          await _vpCustomPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      result =
+          await _vpCustomPlugin.play(
+              {
+                "title": "title",
+                "id": '205727',
+                "type": "series",
+                "description": "here is the description",
+                "posterPhoto": 'https://thekee-m.gcdn.co/images06012022/uploads/media/series/posters/2022-09-27/0ObHcBVUnfpzbtIB.jpg',
+                "mediaUrl": "https://thekee.gcdn.co/video/m-159n/English/Animation&Family/Baby.Shark.Best.Kids.Song/S01/01.mp4",
+                "playPosition": '9000',
+                "userId": '77810',
+                "profileId": '217588',
+                "mediaType": "tvshow",
+                "episodes": jsonEncode([]),
+                "subtitles": jsonEncode([]),
+                "subtitle": "-"
+              }
+          ) ?? 'UnKnown Result from play';
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      result = 'Failed to play.';
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+    if(kDebugMode) {
+      print("result: $result");
+    }
   }
 
   @override
@@ -55,7 +64,10 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: ElevatedButton(
+            onPressed: _play,
+            child: const Text('Play'),
+          ),
         ),
       ),
     );

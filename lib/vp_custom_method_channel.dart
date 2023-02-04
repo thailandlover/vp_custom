@@ -10,8 +10,7 @@ class MethodChannelVpCustom extends VpCustomPlatform {
   final methodChannel = const MethodChannel('vp_custom');
 
   @override
-  Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
-    return version;
+  Future<dynamic> play(Map<String,dynamic> data) async {
+    return await methodChannel.invokeMethod('play',data);
   }
 }

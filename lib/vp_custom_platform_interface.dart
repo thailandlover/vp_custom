@@ -23,7 +23,7 @@ abstract class VpCustomPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+  Future<dynamic> play(Map<String,dynamic> data) {
+    throw UnimplementedError('play() has not been implemented.');
   }
 }
