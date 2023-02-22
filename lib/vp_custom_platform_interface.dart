@@ -26,4 +26,8 @@ abstract class VpCustomPlatform extends PlatformInterface {
   Future<dynamic> play(Map<String,dynamic> data) {
     throw UnimplementedError('play() has not been implemented.');
   }
+
+  Future<dynamic> customPlayer(Map<String,dynamic> data) {
+    throw UnimplementedError('customPlay() has not been implemented.');
+  }
 }

@@ -13,4 +13,9 @@ class MethodChannelVpCustom extends VpCustomPlatform {
   Future<dynamic> play(Map<String,dynamic> data) async {
     return await methodChannel.invokeMethod('play',data);
   }
+
+  @override
+  Future<dynamic> customPlayer(Map<String,dynamic> data) async {
+    return await methodChannel.invokeMethod('custom_player',data);
+  }
 }

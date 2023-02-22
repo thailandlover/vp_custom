@@ -3,7 +3,7 @@ import UIKit
 import Foundation
 import AVKit
 
-public class SwiftVpCustomPlugin: NSObject, FlutterPlugin {
+public class SwiftVpCustomPlugin: NSObject, FlutterPlugin, AVPlayerViewControllerDelegate {
      public static var shared : SwiftVpCustomPlugin!
      var avPlayer: AVPlayer!
      var avPlayerViewController: AVPlayerViewController!
@@ -19,6 +19,10 @@ public class SwiftVpCustomPlugin: NSObject, FlutterPlugin {
      var itemVideoType:String! = nil
      var currentPlayPosition: CMTime!
      var lastPlayPosition: Double!
+    
+    var caller : FlutterMethodCall!
+    var isCustomPlayer : Bool = false
+    var customPlayerUrl : String!
      public static func register(with registrar: FlutterPluginRegistrar) {
          let channel = FlutterMethodChannel(name: "vp_custom", binaryMessenger: registrar.messenger())
 
@@ -34,12 +38,52 @@ public class SwiftVpCustomPlugin: NSObject, FlutterPlugin {
          case "play":
              self.play(result: result, call: call, controller: flutterViewController)
              break;
+         case "custom_player":
+             self.caller = call
+             self.customPlay(controller: flutterViewController, call: call)
+             break
          default:
              print("method wasn't found : ",call.method);
          }
      }
-
-     func play(result: @escaping FlutterResult,call: FlutterMethodCall,controller : UIViewController){
+    
+    func customPlay(controller : UIViewController,call: FlutterMethodCall, time : Double = 0){
+        self.isCustomPlayer = true
+        self.avPlayerItemStatus = .unknown
+        self.isReadyToPlay = false
+        guard let args = call.arguments else {
+            return
+        }
+        if let myArgs = args as? [String: Any],
+           let itemVideoUrl : String = myArgs["mediaUrl"] as? String,
+           let playPosition : String = myArgs["playPosition"] as? String
+        {
+            self.customPlayerUrl = itemVideoUrl
+            let videoURL = URL(string: itemVideoUrl)
+            self.currentPlayPosition = CMTime(seconds: time, preferredTimescale: .max)
+            self.lastPlayPosition = self.currentPlayPosition.seconds
+            
+            self.avAsset = AVAsset(url: videoURL!)
+            self.avPlayerItem = AVPlayerItem(asset: self.avAsset)
+            self.avPlayer = AVPlayer(playerItem: self.avPlayerItem)
+            self.avPlayerViewController = AVPlayerViewController()
+            self.avPlayerViewController.player = self.avPlayer
+            self.avPlayerViewController.allowsPictureInPicturePlayback = true
+            self.avPlayerViewController.delegate = self
+            self.avPlayerItem.addObserver(self,
+                                          forKeyPath: #keyPath(AVPlayerItem.status),
+                                          options: [.old, .new],
+                                          context: &self.playerItemContext)
+            
+            controller.present(self.avPlayerViewController, animated: true) {
+                try! AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+            }
+        }
+        
+    }
+    
+     func play(result: @escaping FlutterResult,call: FlutterMethodCall,controller : UIViewController, time : Double = 0){
+         self.isCustomPlayer = false
          self.avPlayerItemStatus = .unknown
          self.isReadyToPlay = false
          guard let args = call.arguments else {
@@ -282,11 +326,20 @@ public class SwiftVpCustomPlugin: NSObject, FlutterPlugin {
          } else if(UIScreen.screens.count >= 2){
 
          } else {
-             if(self.avPlayer != nil){
-                 self.avPlayer.pause()
+             if(!self.isCustomPlayer){
+                 if(self.avPlayer != nil){
+                     self.avPlayer.pause()
+                 }
              }
          }
-
      }
+    
+    public func playerViewController(_ playerViewController: AVPlayerViewController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+        if(self.isCustomPlayer && self.avPlayer != nil && self.caller != nil){
+            let flutterViewController: UIViewController =
+            (UIApplication.shared.delegate?.window??.rootViewController)!;
+            self.customPlay(controller: flutterViewController, call: self.caller, time: self.avPlayer.currentTime().seconds)
+        }
+    }
 
  }
