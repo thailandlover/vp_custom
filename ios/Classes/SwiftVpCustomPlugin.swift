@@ -299,7 +299,7 @@ public class SwiftVpCustomPlugin: NSObject, FlutterPlugin, AVPlayerViewControlle
          }
      }
 
-     public func terminatePlugin() {
+     public func StopActivePlaying() {
          if(self.avPlayer != nil){
              self.avPlayer.pause()
          }

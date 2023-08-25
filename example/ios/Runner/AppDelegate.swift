@@ -17,6 +17,6 @@ import vp_custom
   }
 
   override func applicationWillTerminate(_ application: UIApplication) {
-     SwiftVpCustomPlugin.shared.terminatePlugin()
+     SwiftVpCustomPlugin.shared.StopActivePlaying()
   }
 }
